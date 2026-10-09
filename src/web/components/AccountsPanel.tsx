@@ -14,6 +14,7 @@ import { useSingleKeyShortcuts } from "../use-single-key-shortcuts";
 import AccountIssuePopover, { WarnGlyph } from "./AccountIssuePopover";
 import type { FeedbackPrefill } from "../feedback";
 import AccountRow from "./AccountRow";
+import CodexProfilesSection from "./CodexProfilesSection";
 import AccountsEmptyState from "./AccountsEmptyState";
 import AccountsHeader from "./AccountsHeader";
 import AutoSwitchPolicy from "./AutoSwitchPolicy";
@@ -723,6 +724,7 @@ export default function AccountsPanel({ onClose, leaving, onReport, onRoster, la
           )}
           {/* Under the roster and the policy over it, in every state the
               column is in: the header has no room left beside its five acts. */}
+          <CodexProfilesSection />
           <div className="film-foot"><FilmLink film="claudeAccounts" /></div>
         </div>
       )}
