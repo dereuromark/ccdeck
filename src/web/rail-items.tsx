@@ -142,8 +142,7 @@ export function railItems({
     ariaLabel: t("board.rail.sessionList"), glyph: <SessionListGlyph />, kind: "panel",
     open: sessionListOpen, controls: "session-list", onPress: toggleSessionList, buttonRef: toggles.sessionList,
   };
-  // Gone without Claude Code rather than present and inert: every account in
-  // the panel is a Claude account, and a Codex-only machine has none to show.
+  // Accounts is available whenever either provider has profiles to inspect.
   const accounts: RailItem = {
     id: "accounts", label: t("board.rail.accounts"), short: t("board.rail.accounts"), key: { cap: "A", aria: "A", single: true },
     ariaLabel: t("board.rail.accounts"), hint: t("board.rail.accounts.hint"), glyph: <AccountsGlyph />, kind: "panel",
@@ -238,11 +237,11 @@ export function railItems({
     // Accounts first, at the top of the stripe and the start of the dock: the
     // owner's call (2026-10-08), the panel a first run opens and the one read
     // before choosing where to start a session.
-    left: providers.claude ? [accounts, sessionList] : [sessionList],
+    left: (providers.claude || providers.codex) ? [accounts, sessionList] : [sessionList],
     // The owner's order (2026-10-22): Claude accounts, Account capacity,
     // Reset calendar, Session list — the first three one group, since all
     // three are about the accounts.
-    leftStripe: providers.claude ? [named(t("board.rail.group.accounts"), [accounts, ...capacity]), [sessionList]] : [[sessionList]],
+    leftStripe: (providers.claude || providers.codex) ? [named(t("board.rail.group.accounts"), [accounts, ...(providers.claude ? capacity : [])]), [sessionList]] : [[sessionList]],
     capacity: providers.claude ? capacity : [],
     right: [
       named(t("board.rail.group.usage"), [usage, machine]),
