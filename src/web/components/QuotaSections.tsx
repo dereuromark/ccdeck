@@ -298,7 +298,9 @@ export function CodexQuotaSection({ codexQuota, codexLoading, nowSec, incident, 
           )}
           {codexQuota.partial && (
             <div className="up-quota-sub up-quota-hint">
-              {t("usage.quota.partial")}
+              {codexQuota.coverage === 'standard_limits'
+                ? 'Standard Codex limits only; additional limits and credits are not included.'
+                : t("usage.quota.partial")}
             </div>
           )}
         </div>
