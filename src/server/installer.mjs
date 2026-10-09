@@ -14,6 +14,7 @@ import { claudeCodeVersions, claudeConfigDir, claudeVersionAtLeast } from "./cla
 // The first Claude Code that knows StopFailure — see stop-failure.mjs.
 import { STOP_FAILURE, STOP_FAILURE_SINCE } from "./stop-failure.mjs";
 import { CODEX_HOME } from "./codex-dir.mjs";
+import { configuredCodexHomes } from "./codex-profiles.mjs";
 import { shellQuoteArg } from "./exec.mjs";
 // The read-before-rewrite and the atomic replace every settings writer goes
 // through — see atomic-write.mjs.
@@ -692,7 +693,7 @@ export async function uninstallHooks({ provider = "claude", beforeWrite = null }
 /** True when ~/.codex/ exists — the CLI's default answer to whether the Codex
  *  rollout watcher is worth starting, and whether there are hooks to remove. */
 export function hasCodexInstalled() {
-  return existsSync(CODEX_DIR);
+  return configuredCodexHomes().some(directory => existsSync(directory));
 }
 
 /**
