@@ -14,7 +14,7 @@ import { claudeCodeVersions, claudeConfigDir, claudeVersionAtLeast } from "./cla
 // The first Claude Code that knows StopFailure — see stop-failure.mjs.
 import { STOP_FAILURE, STOP_FAILURE_SINCE } from "./stop-failure.mjs";
 import { CODEX_HOME } from "./codex-dir.mjs";
-import { configuredCodexHomes } from "./codex-profiles.mjs";
+import { configuredCodexHomes, readCodexSelection } from "./codex-selection.mjs";
 import { shellQuoteArg } from "./exec.mjs";
 // The read-before-rewrite and the atomic replace every settings writer goes
 // through — see atomic-write.mjs.
@@ -690,10 +690,15 @@ export async function uninstallHooks({ provider = "claude", beforeWrite = null }
   return { ok: true, changed, provider, settingsPath: cfg.settingsPath };
 }
 
-/** True when ~/.codex/ exists — the CLI's default answer to whether the Codex
- *  rollout watcher is worth starting, and whether there are hooks to remove. */
-export function hasCodexInstalled() {
-  return configuredCodexHomes().some(directory => existsSync(directory));
+/** Whether an available configured or persisted Codex home can be watched. */
+export async function hasCodexInstalled(options = {}) {
+  try {
+    const selection = await readCodexSelection(options);
+    return selection.profiles.some(profile => profile.available);
+  } catch {
+    // Invalid selection metadata must not crash startup or invent managed homes.
+    return configuredCodexHomes(options.env, options.home, options.platform).some(directory => existsSync(directory));
+  }
 }
 
 /**
