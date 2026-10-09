@@ -267,7 +267,7 @@ const claudeArrived = RESPAWN && wantClaude && process.env.AGENTS_DECK_BOOT_HOOK
 // with the other three, because the second-start question below is asked of
 // nothing but inputs already settled. A --no-codex start reads no tree: null.
 const codexHome = codexHomeField(wantCodex);
-const codexHomes = codexHomesField(wantCodex);
+const codexHomes = await codexHomesField(wantCodex);
 
 const WEB_DIST = join(PKG_ROOT, "dist", "web", "index.html");
 if (!existsSync(WEB_DIST)) {
