@@ -292,10 +292,11 @@ describe("a percentage width under a horizontal margin", () => {
       // below by being named here, which is the point of the list.
       "hist-chart",
       // Settings › Integrations' connect form's inputs, which fill the form's
-      // column (#2178), and two rows that are one button across their list —
-      // a board in the picker, a sub-task in an issue's detail. Named so they
-      // enter the margin check below; no rule gives any of them a margin.
-      "ig-input", "jr-board-item", "jr-detail-sub",
+      // column (#2178), and three rows that are one button across their list —
+      // a board in the picker, a sub-task in an issue's detail, an item in an
+      // issue's actions menu. Named so they enter the margin check below; no
+      // rule gives any of them a margin.
+      "ig-input", "jr-action-item", "jr-board-item", "jr-detail-sub",
       // The process modal's name cell, which fills whatever the six fixed
       // columns leave and ellipsises the command line inside it. `max-width: 0`
       // with `width: 100%` is the table-cell idiom for that — the panel's own
@@ -303,7 +304,12 @@ describe("a percentage width under a horizontal margin", () => {
       // its rule is scoped rather than bare.
       // Quota history SVG fills its grid track without outer margins.
       "pl-name", "qh-chart", "radio-daily", "radio-filter-option", "radio-filter-trigger", "radio-map-canvas",
-      "tool-bursts-svg", "tr-event-bottom", "tr-event-top", "tr-message", "tr-search", "uh-bar", "uh-bar-seg", "up-session-open", "up-table",
+      "tool-bursts-svg", "tr-event-bottom", "tr-event-top", "tr-message", "tr-search",
+      // Tool activity's Where the time went: a lane, one button across its row
+      // of the ring's legend, and a part, one button across its list row. No
+      // rule gives either a margin.
+      "tt-lane", "tt-part",
+      "uh-bar", "uh-bar-seg", "up-session-open", "up-table",
     ]);
 
     const violations: string[] = [];

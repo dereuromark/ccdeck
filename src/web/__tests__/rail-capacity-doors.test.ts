@@ -42,18 +42,22 @@ const ids = (items: { id: string }[]) => items.map(i => i.id);
 
 describe("the left stripe's two doors into Account capacity", () => {
   it("stand between Accounts and Session list, in the owner's order", () => {
-    expect(ids(rails().leftStripe)).toEqual(["accounts", "account-capacity", "reset-calendar", "session-list"]);
+    const groups = rails().leftStripe;
+    expect(groups.map(ids)).toEqual([["accounts", "account-capacity", "reset-calendar"], ["session-list"]]);
+    // One run about the accounts, named for a screen reader; Session list its own.
+    expect(groups[0].map(i => i.group)).toEqual(["Claude accounts", "Claude accounts", "Claude accounts"]);
+    expect(groups[1][0].group).toBeUndefined();
   });
 
   it("go with Claude Code: a Codex-only machine keeps the accounts button without them", () => {
     const r = rails({ claude: false });
-    expect(ids(r.leftStripe)).toEqual(["accounts", "session-list"]);
+    expect(r.leftStripe.map(ids)).toEqual([["accounts"], ["session-list"]]);
     expect(r.capacity).toEqual([]);
   });
 
   it("go with the accounts button on a machine with neither provider", () => {
     const r = rails({ claude: false, codex: false });
-    expect(ids(r.leftStripe)).toEqual(["session-list"]);
+    expect(r.leftStripe.map(ids)).toEqual([["session-list"]]);
     expect(r.capacity).toEqual([]);
   });
 

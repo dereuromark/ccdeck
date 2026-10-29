@@ -54,7 +54,8 @@
 // reset inventory is quota-store-resets.mjs's.
 import { noteQuotaHistory, forgetQuotaHistoryAccount } from "./quota-history.mjs";
 import { activeAccountUsage, requestCollection } from "./claude-accounts.mjs";
-import { quotaFromStore, readingLapsed, WIN_5H_SEC, WIN_7D_SEC } from "./quota-shape.mjs";
+import { claudePlanLabel, quotaFromStore, readingLapsed, WIN_5H_SEC, WIN_7D_SEC } from "./quota-shape.mjs";
+import { readLiveLogin } from "./claude-login.mjs";
 import {
   SELF_POLL_MS, clearCooldown, coolingDown, cooldownUntil, credentialFingerprint, fetchOAuthUsage,
   hasSubscriptionCredential,
@@ -305,6 +306,7 @@ async function storeQuota() {
     const credits = heldResetCredits(account, Date.now());
     const reading = credits ? { ...quota, resetCredits: credits } : quota;
     if (account) _accountOfReading.set(reading, account);
+    if (entry.heldUntil) _heldUntilOfReading.set(reading, entry.heldUntil);
     return reading;
   } catch {
     return null;
@@ -325,11 +327,41 @@ export function quotaAccount(reading) {
   return (reading && typeof reading === "object" && _accountOfQuota.get(reading)) || null;
 }
 
+/**
+ * A reading with the plan of the account it is about — `plan` as
+ * claudePlanToken names it, `planLabel` as the panel prints it beside the
+ * section title, where the Codex section has always shown its own.
+ *
+ * The plan is the signed-in account's, read off Claude Code's own config
+ * (claude-login.mjs), and that is whose numbers every source reads. A reading
+ * with no numbers has nothing to label, and one tagged as somebody else's —
+ * taken before a switch, answered after it — gets no plan rather than the new
+ * account's.
+ *
+ * Applied by the route, to a copy: account-watch.mjs looks the reading itself
+ * up in _accountOfQuota, and a copy is not in it.
+ *
+ * @param login who is signed in; read from Claude Code's config by default,
+ *   and a parameter so a test can name its own, as it can `account`.
+ */
+export async function withClaudePlan(reading, { login, account = quotaAccount(reading) } = {}) {
+  if (!reading?.ok) return reading;
+  const live = login === undefined ? await readLiveLogin() : login;
+  const planLabel = claudePlanLabel(live?.plan);
+  if (!planLabel) return reading;
+  if (account && !sameAccount(account, accountOf(live.email, live.orgUuid))) return reading;
+  return { ...reading, plan: live.plan, planLabel };
+}
+
 // Which account a store reading is about, for the inventory read it starts.
 // Beside the reading rather than on it: the reading is sent to the browser as
 // it is, and an identity is not something the panel needs. Weak, so a reading
 // nothing holds any more takes its entry with it.
 const _accountOfReading = new WeakMap();
+// Until when a store reading's account is held for a paired deck's readings
+// (#930), beside the reading for the same reason: the inventory read slows
+// down while another deck spends the account's requests.
+const _heldUntilOfReading = new WeakMap();
 
 // After asking claude-swap to collect, how long to keep looking for the row it
 // writes. Its fetch is a single HTTPS call; three tries covers a slow one
@@ -443,7 +475,9 @@ async function _doFetch(now, force = false, gen = _generation) {
     if (!readingLapsed(store, now)) {
       // The saved limit resets are the one thing the store cannot say. Read
       // behind this answer, never in front of it; see refreshStoreResetCredits.
-      refreshStoreResetCredits({ now, force, account: _accountOfReading.get(store) });
+      refreshStoreResetCredits({
+        now, force, account: _accountOfReading.get(store), shared: (_heldUntilOfReading.get(store) ?? 0) > now,
+      });
       return publish(gen, store, now, { good: true, who });
     }
   }

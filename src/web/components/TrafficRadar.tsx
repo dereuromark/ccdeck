@@ -51,7 +51,7 @@ export function TrafficRadarView({ snapshot, failed = false, captureState, sessi
   for (const id of fileSessions) if (!choices.has(id)) choices.set(id, "Session");
   return <div className="tr-body">
     <header className="modal-head tr-header">
-      <div className="tr-identity"><RadarIcon kind="radar" /><div><div className="modal-title"><span className="modal-tool-name" id="tr-title">Telemetry Radar</span><span className="tr-beta" title="Beta feature — still being tested and improved.">Beta</span></div><p id="tr-purpose">Inspect Claude Code’s collector traffic.</p></div></div>
+      <div className="tr-identity"><div className="modal-title"><span className="modal-tool-name" id="tr-title">Telemetry Radar</span><span className="tr-beta" title="Beta feature — still being tested and improved.">Beta</span></div><p id="tr-purpose">Inspect Claude Code’s collector traffic.</p></div>
     <div className="tr-navigation">
       {/* Written out rather than mapped, so each tab names its panel's id as the panel spells it. */}
       <div className="tr-tabs" role="tablist" aria-label="Radar views" onKeyDown={handleTabKeyDown}>
@@ -81,7 +81,7 @@ export function TrafficRadarView({ snapshot, failed = false, captureState, sessi
       <div className="tr-summary-state"><span className={`tr-state ${failed || !snapshot || incomplete ? "tr-tone-unknown" : state.startsWith("Enabled") ? "tr-tone-enabled" : "tr-tone-unknown"}`}>{failed ? "Configuration unavailable" : !snapshot ? "Reading settings…" : incomplete ? "Configuration incomplete" : state === "Unknown" ? "Configuration unknown" : state}</span>
         <span className="tr-note">{destinations.length ? `${destinations.length} configured destination${destinations.length === 1 ? "" : "s"}` : "No destination found in the settings files read. Telemetry may still be running."}</span></div>
       {destinations.length > 0 && <div className="tr-endpoints">{destinations.map(destination => <code key={destination}>{destination}</code>)}</div>}
-      {!destinations.length && observed.length > 0 && <div className="tr-observed-summary"><span className="tr-state">Claude connections observed</span><div className="tr-endpoints">{observed.map(address => <code key={address}>{address}</code>)}</div><p className="tr-note">These are active connections, not confirmed telemetry messages. Choose an observed address below to inspect its traffic.</p></div>}
+      {!destinations.length && observed.length > 0 && <div className="tr-observed-summary"><span className="tr-state">Claude connections observed</span><div className="tr-endpoints">{observed.map(address => <code key={address}>{address}</code>)}</div><p className="tr-note">These are active connections, not confirmed telemetry messages. Radar watches them while no settings file names a destination, and Monitor shows what they send.</p></div>}
     </div>
       {snapshot ? <Configuration snapshot={snapshot} stale={failed} onConfigChange={onConfigChange} sessionLabel={session === "all" ? undefined : choices.get(session) ?? session} /> : <p className="tr-empty">{failed ? "Could not read settings. Sampling will retry." : "Reading local settings…"}</p>}
     </div>

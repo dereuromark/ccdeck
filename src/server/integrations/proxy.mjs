@@ -13,10 +13,9 @@
 // again, and one anywhere else is an error — the token is never re-sent to a
 // host the user did not connect.
 //
-// READ ONLY BY CONSTRUCTION. The proxy sends GET and nothing else. Browsing a
-// tracker is the whole feature; there is no route here that could change an
-// issue, and there is no generic "fetch this URL with my token" route anywhere
-// in the deck.
+// READ ONLY BY CONSTRUCTION. This generic proxy sends GET and nothing else.
+// Jira's bounded move has its own private write transport; it cannot turn this
+// into a generic "fetch this URL with my token" route.
 import { errorFromFetchFailure, errorFromStatus, integrationError } from "./errors.mjs";
 
 /** HTTPS only, with one exception: a tracker on this machine (a mock, a
@@ -215,6 +214,14 @@ export function rasterMatches(type, b) {
   return false;
 }
 
+/** The raster type the bytes are, by how they start, or null. An image is
+ *  served under this, not its label: Jira Data Center labels an uploaded
+ *  avatar's PNG image/jpeg. */
+export function rasterTypeOf(b) {
+  for (const type of RASTER_TYPES) if (rasterMatches(type, b)) return type;
+  return null;
+}
+
 /** An address that names this machine or a private network: loopback,
  *  RFC 1918, link-local, CGNAT, unique-local IPv6, an IPv4-mapped one of
  *  those, or a name with no public suffix (an intranet host). Only a token
@@ -308,7 +315,8 @@ export async function fetchImage(target, {
     }
     let bytes;
     try { bytes = await readCapped(res, maxBytes); } catch { throw integrationError("not-found", "The image is larger than the deck shows."); }
-    if (!rasterMatches(type, bytes)) throw integrationError("not-found", "That is not an image the deck shows.");
-    return { contentType: type, bytes };
+    const actual = rasterTypeOf(bytes);
+    if (!actual) throw integrationError("not-found", "That is not an image the deck shows.");
+    return { contentType: actual, bytes };
   }
 }

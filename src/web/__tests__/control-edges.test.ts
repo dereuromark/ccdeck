@@ -540,6 +540,8 @@ const CONTROLS: Control[] = [
   // with the primary button's accent edge. Its search fields and its Open in
   // Jira link are the integrations' shared ones.
   { at: 'button.btn.jr-chip[aria-pressed="true"]', fillFrom: 'button.btn.jr-chip[aria-pressed="true"]', beds: ["--panel"] },
+  // Move's native destination/position fields sit on the anchored panel.
+  { at: ".jr-move-pop select", beds: ["--panel"] },
   // The integrations' shared search field (#2178, #2179), which both panels'
   // fields become: on a toolbar over --bg in the modal, or over --panel.
   { at: ".ig-search-input", states: [".ig-search-input:hover"], beds: ["--panel", "--bg"] },
@@ -553,7 +555,9 @@ const CONTROLS: Control[] = [
   { at: ".topbar .brand button.v.ready", states: [".topbar .brand button.v.ready:hover"], beds: TOPBAR },
   { at: ".selected-ribbon", states: [".selected-ribbon:hover"], beds: TOPBAR },
   { at: "button.btn", states: ["button.btn:hover"], beds: [...TOPBAR, "--panel"] },
+  { at: "button.btn", fillFrom: "button.btn.ig-manage:not(.primary)", states: ["button.btn:hover"], beds: ["--panel"] },
   { at: "button.btn.primary", fillFrom: "button.btn.primary", beds: [...TOPBAR, "--panel"] },
+  { at: "button.btn.primary", fillFrom: "button.btn.primary", states: ["button.btn.ig-manage.primary:hover"], beds: ["--panel"] },
   // The on state of an icon toggle (#370) and a toolbar button that was open,
   // the resting edge on the control fill, were swept here until the topbar's
   // panel toggles left for the window's edges (2026-10-08) and `.icon-btn` left
@@ -635,11 +639,8 @@ const CONTROLS: Control[] = [
   // panel with the control edge round it, which is the mark that says which
   // one is chosen, so that edge is measured. The track sits on the panel.
   { at: ".fb-kind:has(input:checked)", fillFrom: ".fb-kind:has(input:checked)", beds: ["--panel"] },
-  // Settings' nav, on the same terms: a section's name at rest draws no
-  // boundary — the word names it — and the section on show is raised onto the
-  // panel with the control edge round it, which is the mark that says which,
-  // so that edge is measured. The nav sits a surface down, on --bg-soft.
-  { at: '.settings-tab[aria-selected="true"]', fillFrom: '.settings-tab[aria-selected="true"]', beds: ["--bg-soft"] },
+  // Settings navigation uses a fill/text weight for selection and the global
+  // keyboard focus ring. It no longer paints a boundary to sweep here.
   // Its two quiet buttons under the message, Add screenshot and Add details:
   // no boundary at rest, since their words name them, and the control edge
   // under the pointer and the keyboard, as Other accounts' expand-all draws one.
@@ -874,13 +875,16 @@ describe("what counts as an edge, which BORDER_PROPS decides (#655)", () => {
       // The feedback dialog's kinds (#1853): the focused thing is a 1px radio,
       // so the card it stands for draws the ring, as the import card does.
       ".fb-kind:has(input:focus-visible)",
-      // The integrations' selected row (#2178, #2179): a pill or a status
-      // lozenge gives up its fill there, so its ring is the whole of its
-      // boundary, and so is the empty face's when no one is assigned.
+      // Selected metadata pills give up their fill, so their ring is the
+      // whole boundary, as is an empty face's. Jira workflow statuses now
+      // retain opaque semantic beds, measured in jira-contrast.test.ts.
       ".ig-row[data-selected] .ig-avatar-none",
       ".ig-row[data-selected] .ig-chip",
-      '.ig-row[data-selected] .jr-status[data-cat="done"]',
-      '.ig-row[data-selected] .jr-status[data-cat="indeterminate"]',
+      // The navigable button now puts its focus ring on the whole issue row.
+      ".jr-row:has(> .jr-row-main:focus-visible)",
+      // Quick open's field: the input in it is borderless, so the row it
+      // sits in draws the ring, as the feedback kinds' cards do.
+      ".qo-field:has(.qo-input:focus-visible)",
       ".radio-collection:focus-visible",
       ".radio-filter-back:focus-visible",
       ".radio-filter-chip:focus-visible",
@@ -935,9 +939,8 @@ describe("what counts as an edge, which BORDER_PROPS decides (#655)", () => {
     // And from 106 to 108 with the one question's scale: a number framed at
     // rest, and louder under the pointer. And from 108 to 110 with the
     // feedback dialog's Discard, which gains an edge under the pointer and the
-    // keyboard the way the LAN dialog's Unpair does. And from 110 to 112 with
-    // Settings' nav, whose chosen section is raised with the control edge round
-    // it, as the feedback dialog's chosen kind is. And from 112 to 115 with the
+    // keyboard the way the LAN dialog's Unpair does. Settings navigation now
+    // uses a borderless selection fill. Further controls were added with the
     // feedback dialog's design pass: each image, the button that replaces it,
     // lifting its edge under the pointer and the keyboard, and the message
     // taking the error colour on its edge when Send was pressed with it empty.
@@ -954,9 +957,12 @@ describe("what counts as an edge, which BORDER_PROPS decides (#655)", () => {
     // box and Open in Jira, and the GitHub and GitLab panel's (#2179) search
     // field, are now the integrations' shared ones: the shared search field
     // adds two, at rest and under the pointer, and the link to the tracker
-    // draws no edge.
+    // draws no edge. Quick open's field adds one: the ring its input draws on
+    // the row around it.
+    // Jira Move adds a select boundary and the full-row keyboard perimeter;
+    // both are swept at the unchanged 3:1 floor, not exempted.
     // Codex profile actions add three: the check at rest and under the pointer, and the label.
-    expect(EDGED_CONTROLS.length).toBeLessThan(164);
+    expect(EDGED_CONTROLS.length).toBeLessThan(165);
     // The shapes #378 and #655 each added, still answered: a ring-only rule and
     // a `-color`-longhand-only rule both read as edges.
     expect(paintsAnEdge("outline: 1px solid var(--line);")).toBe(true);

@@ -242,11 +242,15 @@ describe("what was migrated to the secondary tier", () => {
       // and a quote inside an issue. Why a read failed is the integrations'
       // shared failure note's.
       ".jr-board-note", ".jr-goal", ".jr-html blockquote", ".jr-state p",
-      // Jira's labels, status lozenges and sprint totals: words on a
-      // --ctl-fill pill, kept here by their bed rather than their role, as
-      // the shared field's placeholder is — --muted is 4.05:1 on that fill
-      // in dark.
-      ".jr-label", ".jr-status", ".jr-total, .jr-estimate",
+      // And around the backlog: how many issues are picked, the Move form's
+      // field labels, a reading preview's version and epic, and Clear filters,
+      // a worded action that steps up to --text under the pointer.
+      ".jr-selection", ".jr-move-pop label", ".jr-row-preview dd", ".jr-clear",
+      // Jira's labels and sprint totals: words on a --ctl-fill pill, kept
+      // here by their bed rather than their role, as the shared field's
+      // placeholder is — --muted is 4.05:1 on that fill in dark. A status
+      // lozenge reads --text on its own opaque bed.
+      ".jr-label", ".jr-total, .jr-estimate",
       // And by the same bed: what is left of an estimate, inside the
       // estimate's pill. The search field is the integrations' shared one.
       ".jr-remaining",
@@ -274,6 +278,9 @@ describe("what was migrated to the secondary tier", () => {
       // holds (#2176) — Text & density's opening sentence was the first of
       // them. Read once, before anything in the section is.
       ".settings-pane-note",
+      // Why a Claude Code setting cannot be changed here, or that a running
+      // session wrote it back: one sentence under its row, read and acted on.
+      ".settings-row-said-quiet",
       // What a tool history change just did, said in its own row.
       ".settings-row-status",
       ".radio-art",
@@ -347,6 +354,14 @@ describe("what was migrated to the secondary tier", () => {
       ".ta-note",
       ".ta-search input::placeholder",
       ".ta-summary",
+      // Its Where the time went, by bed as well: a lane in the ring's legend is
+      // raised on --ctl-fill while its level is open, with its time and what it
+      // mostly was under the name, and the parts that are not a command — the
+      // hooks starting tools, the rest of the list — sit in rows raised the
+      // same way under the pointer.
+      ".tt-lane",
+      ".tt-part[data-rest]",
+      ".tt-part[data-static]",
       // The local reads' waits — Projects, session usage, usage history, and
       // quota, process and sensor history: the one sentence under each title
       // that says what is being read, and that the first run may download
@@ -403,6 +418,30 @@ describe("what was migrated to the secondary tier", () => {
       ".tr-tab",
       ".tr-tone-unknown",
       ".tr-variables dt > span, .tr-variables dt > code",
+          // Readable descriptions in integration discovery and focused Settings.
+      ".explore-glyph",
+      ".explore-info p",
+      ".explore-intro",
+      ".explore-status",
+      ".explore-text-action",
+      ".ig-back-to-overview",
+      ".ig-detail-facts dt",
+      ".ig-disconnect-section > p",
+      ".ig-leave-confirm p",
+      ".ig-managed-identity p",
+      ".ig-overview-info",
+      ".ig-provider .ig-conn-line",
+      ".ig-total",
+      ".settings-row-details",
+      // What's new: the sentence under each change, the always-visible notice
+      // beside it, the one line that says which releases are shown (or that
+      // this build has none), and the options menu's line about the last
+      // check. Each is read, not glanced at; the group titles, the icons and
+      // the footer's links stay on --muted.
+      ".release-notes .rn-context, .release-notes .rn-empty",
+      ".release-notes .rn-note-body",
+      ".release-notes .rn-note-notice",
+      ".rn-menu-status",
     ].sort());
   });
 

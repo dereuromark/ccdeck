@@ -144,8 +144,6 @@ const WRITES: [string, unknown, (p: any) => unknown, unknown][] = [
   ["notifyQuota", { notifyQuota: true }, p => p.notifyQuota, true],
   ["notifyReset", { notifyReset: true }, p => p.notifyReset, true],
   ["notifyStopped", { notifyStopped: false }, p => p.notifyStopped, false],
-  // A paired deck on the login this one is on (#2192).
-  ["notifyElsewhere", { notifyElsewhere: false }, p => p.notifyElsewhere, false],
   // Settings › General › Claude sessions (SessionRecoverySettings.tsx), off
   // until somebody turns it on (#2193).
   ["continueStopped", { continueStopped: true }, p => p.continueStopped, true],
@@ -159,7 +157,7 @@ const WRITES: [string, unknown, (p: any) => unknown, unknown][] = [
   ["lan.shared", { lan: { shared: ["acct-1", "acct-2", "acct-3"] } }, p => p.lan.shared, ["acct-1", "acct-2", "acct-3"]],
   ["lan.shareActive", { lan: { shareActive: false } }, p => p.lan.shareActive, false],
   // Sending the login this deck is on, from its switch in the setup (#2192).
-  ["lan.sendInUse", { lan: { sendInUse: true } }, p => p.lan.sendInUse, true],
+  ["lan.sendInUse", { lan: { sendInUse: false } }, p => p.lan.sendInUse, false],
   ["lan.pairingMode", { lan: { pairingMode: "invite" } }, p => p.lan.pairingMode, "invite"],
   ["lan.autoAsk", { lan: { autoAsk: false } }, p => p.lan.autoAsk, false],
   ["lan.autoAccept", { lan: { autoAccept: false } }, p => p.lan.autoAccept, false],
@@ -196,7 +194,7 @@ describe("the fields a page may write", () => {
   it("are these, and no others", () => {
     expect(PAGE_FIELDS).toEqual({
       top: [
-        "notifications", "notifySwap", "notifyQuota", "notifyReset", "notifyStopped", "notifyElsewhere", "continueStopped",
+        "notifications", "notifySwap", "notifyQuota", "notifyReset", "notifyStopped", "continueStopped",
         "tourSeen", "autoUpdate", "recoverCodexSessions", "recoverClaudeSessions",
       ],
       lan: [
@@ -211,7 +209,9 @@ describe("the fields a page may write", () => {
     // cannot be added to the file without being sorted onto one.
     const DECKS_OWN = {
       top: ["reports", "report", "accounts"],
-      lan: ["secret", "onward", "trusted", "unpaired", "port", "aliases"],
+      // sendInUseSet: set by pagePatch when the page writes sendInUse, never by
+      // a page itself (3.48.1).
+      lan: ["secret", "onward", "trusted", "unpaired", "port", "aliases", "sendInUseSet"],
     };
     const held = normalise({});
     expect([...PAGE_FIELDS.top, ...DECKS_OWN.top].sort()).toEqual(Object.keys(held).filter(k => k !== "lan").sort());

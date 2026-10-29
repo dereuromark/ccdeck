@@ -369,6 +369,7 @@ const PRESSES: Press[] = [
   // control, 0.97 like every other one.
   [".ap-switch:active:not(:disabled)", "0.97", "transform"],
   [".ap-codex-check:active:not(:disabled)", "0.97", "transform"],
+  [".ap-sign-in:active:not(:disabled)", "0.97", "transform"],
   // #856's two disclosures: a warning that opens its reason, a pace note that
   // opens its number. Text-weight, and still a thing being pressed — the
   // reason #355 gave — so 0.97 of a word.
@@ -386,6 +387,8 @@ const PRESSES: Press[] = [
   [".uh-range-btn:active", "0.97", "transform"],
   [".uh-bar-col:active", "0.97", "transform"],
   [".session-list .sl-row:active", "0.97", "transform"],
+  // Quick open's esc chip, a 22px key: the icon tier.
+  [".qo-esc:active", "0.94", "transform"],
   // Browser Watch's episode disclosure. Same tier and same number as the row
   // above it: a full-width row that opens to show what it is summarising.
   [".bw-ep-head:active", "0.97", "transform"],
@@ -394,6 +397,10 @@ const PRESSES: Press[] = [
   [".ta-row:active", "0.97", "transform"],
   [".ta-highlight:active", "0.97", "transform"],
   [".ta-explain summary:active", "0.97", "transform"],
+  // Where the time went: a lane in the ring's legend opens its level, and a
+  // part is a full-width row that opens the command or the rest of the list.
+  [".tt-lane:active", "0.97", "transform"],
+  ["button.tt-part:active", "0.97", "transform"],
   [".sa-session:active", "0.97", "transform"],
   ["button.tool.clickable:active", "0.97", "transform"],
   [".selected-ribbon .selected-close:active", "0.94", "transform"],
@@ -466,6 +473,9 @@ const PRESSES: Press[] = [
   [".jr-board-item:active", "0.97", "transform"],
   [".jr-crumb:active", "0.97", "transform"],
   [".jr-link-btn:active", "0.97", "transform"],
+  // An issue's actions button on a touch screen (⋯, the only way to Move
+  // there): a 28px glyph, so 0.94.
+  [".jr-move-button:active:not(:disabled)", "0.94", "transform"],
   // The GitHub and GitLab panel (#2179): a group's or a stage's fold, a
   // project in the picker and a link to another item on a page are labelled
   // controls, 0.97. The copy button beside a value is the integrations'
@@ -501,6 +511,14 @@ const owner = (sel: string) => sel.replace(/:active.*$/, "");
  *  What this control gives back on press instead is the hover brightness it
  *  keeps through the whole gesture, and a fit-view that moves the canvas. */
 const EXEMPT: string[] = [
+  // Native Settings disclosures answer through expanded state, without moving labels.
+  ".ig-access summary", ".ig-token-help summary", ".settings-row-details summary",
+  // What's new's disclosures are full-width reading rows: they answer through
+  // the underlined label, the turning chevron and the expanded state, and a
+  // row scaled on press would shift the words under the pointer. Take the tour
+  // is a link-shaped word in the footer beside Release history, and answers the
+  // way that link does, with a heavier underline.
+  ".release-notes .rn-history > summary", ".release-notes .rn-more > summary", ".release-notes .rn-text-button",
   // Radio uses pointer-only feedback on the control or its child glyph.
   // Range thumbs and map markers must retain fixed interaction geometry.
   ".radio-cluster-preview > div > .radio-cluster-station",
@@ -524,6 +542,11 @@ const EXEMPT: string[] = [
   // keeps through hover and while selected — the same "brightness held through
   // the gesture" answer `.cluster-label` gives.
   ".ap-proj-day",
+  // An arc of Tool activity's Where the time went ring, for the same reason:
+  // its length is the lane's share of the time, and an arc scaled on press
+  // leaves the ring. It thickens under the pointer, and its row in the legend
+  // is the control that answers a press (and the keyboard).
+  ".tt-arc",
   ".cluster-label",
   // A row in the share picker, which is a <label> and not a second
   // control: it carries `cursor: pointer` because the whole row is the
@@ -622,6 +645,14 @@ const EXEMPT: string[] = [
   // moves.
   ".jr-row-main",
   ".jr-detail-sub",
+  // An item in a Jira issue's actions menu (Move…), answered the way the
+  // account menu's items are: the fill deepens and nothing moves, so the word
+  // stays under the pointer as the menu turns into the form it opens.
+  ".jr-action-item",
+  // A row in quick open (⌘K) runs what it names and the field is gone on the
+  // release, so it answers as the deck's other list rows do: its fill
+  // deepens a step and nothing moves.
+  ".qo-row",
 ];
 
 describe("press feedback is one convention, applied everywhere", () => {

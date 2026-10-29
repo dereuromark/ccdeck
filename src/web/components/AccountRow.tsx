@@ -15,6 +15,8 @@
 // the row never reads another account's part of that state. The writes it
 // makes are callbacks the panel spells.
 import { WarnGlyph } from "./AccountIssuePopover";
+import AccountTelemetry from "./AccountTelemetry";
+import AccountHint from "./AccountHint";
 import { accountIssue } from "../account-issue";
 import { ago, due } from "../account-freshness";
 import { type Failure } from "../accounts-reload";
@@ -89,14 +91,9 @@ function LaneBar({ lane, nowSec, readAt, frozen, sortedBy }: {
 interface Props {
   a: Account;
   nowSec: number;
-  /** What Local network knows about this account's copies on other decks, and
-   *  the paired decks this deck offers it to — null when it offers it to none —
-   *  and whether this deck is on it and so keeps it here (#2192); and the
-   *  paired decks that say they are on it right now, null when none does —
-   *  which the live row warns about (account-issue.ts elsewhereIssue). */
+  /** Whether a paired deck can restore this account and which decks share it. */
   lan?: {
     noCopyWorksNearby?: boolean; sharedTo?: readonly string[] | null; sharedInUse?: boolean;
-    elsewhere?: readonly string[] | null;
   };
   /** The reader has opened this row's detail. */
   opened: boolean;
@@ -133,12 +130,14 @@ interface Props {
   /** Something is rotating accounts — the deck's loop or a terminal's — so the
    *  telemetry line points at "Hold out of rotation" in the ⋯ menu. */
   rotating?: boolean;
+  /** The scroll area that can clip this row's telemetry indicator. */
+  telemetryBoundaryId?: string;
 }
 
 export default function AccountRow({
   a, nowSec, lan, opened, onToggleLanes, busy, pressProps, onSwitch, menuOpen, onOpenMenu, onCloseMenu,
   refusal, onDismissRefusal, onSignIn, switchedHere, swapped, displaced, issueExpanded, onOpenIssue, sortKey = null, home = null,
-  rotating = false,
+  rotating = false, telemetryBoundaryId,
 }: Props) {
   // The windows that have not reset since they were read: the only ones whose
   // numbers say anything about this window (lane-view.ts's lapsed).
@@ -176,6 +175,10 @@ export default function AccountRow({
   // a hidden hot one. See lane-view.ts.
   const quick = fuller ? [...shown, fuller] : shown;
   const age = a.fetchedAt ? ago(a.fetchedAt, nowSec) : null;
+  // Every row says only the age; whose read it was waits in its tooltip.
+  const ageTitle = a.sharedFrom
+    ? `Read on ${a.sharedFrom}, a paired deck`
+    : "When claude-swap last read this account's usage";
   // What the account's organization sends, when the deck has seen it — said
   // before a switch, because Claude Code applies it without asking in its
   // non-interactive surfaces. See org-telemetry.ts.
@@ -231,20 +234,23 @@ export default function AccountRow({
             id is what the door's description points at. */}
         {a.alias && <span className="ap-alias" title={a.alias}>{a.alias}</span>}
         <span className="ap-email" id={`ap-email-${a.num}`} title={a.email ?? undefined}>{a.email}</span>
+        {telemetry && <AccountTelemetry num={a.num} name={name} telemetry={telemetry} boundaryId={telemetryBoundaryId} />}
         {/* HOME: the account Auto-switch comes back to. A mark, like the
             shared one beside it, and set from the ⋯ rather than by another
             control on every row; whether Auto-switch is passing it over
             right now, and why, is its title. */}
         {home && (
-          <span className="ap-home" id={`ap-home-${a.num}`} title={home}>
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor"
-              strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M2.2 6.6 7 2.6l4.8 4" />
-              <path d="M3.6 5.6v5.8h6.8V5.6" />
-              <path d="M6 11.4V8.6h2v2.8" />
-            </svg>
-            <span className="vis-hidden">{home}</span>
-          </span>
+          <AccountHint detail={home}>
+            <span className="ap-home" id={`ap-home-${a.num}`} title={home} role="img" aria-label="Home account">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor"
+                strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M2.2 6.6 7 2.6l4.8 4" />
+                <path d="M3.6 5.6v5.8h6.8V5.6" />
+                <path d="M6 11.4V8.6h2v2.8" />
+              </svg>
+              <span className="vis-hidden">{home}</span>
+            </span>
+          </AccountHint>
         )}
         {/* SHARED, SAID ON THE ROW (#2170). Whether a login is offered to the
             paired decks was a tick in Local network's setup dialog and nowhere
@@ -256,16 +262,18 @@ export default function AccountRow({
             over the door so the pointer gets it — and what a screen reader
             hears, on the row and in the door's description. */}
         {lan?.sharedTo && (
-          <span className="ap-shared" id={`ap-shared-${a.num}`} title={sharedLine(lan.sharedTo, lan.sharedInUse)}>
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor"
-              strokeWidth="1.3" strokeLinecap="round" aria-hidden>
-              <circle cx="10.5" cy="3.2" r="1.7" />
-              <circle cx="3.5" cy="7" r="1.7" />
-              <circle cx="10.5" cy="10.8" r="1.7" />
-              <path d="M5.2 6.1 8.8 4.1M5.2 7.9l3.6 2" />
-            </svg>
-            <span className="vis-hidden">{sharedLine(lan.sharedTo, lan.sharedInUse)}</span>
-          </span>
+          <AccountHint detail={sharedLine(lan.sharedTo, lan.sharedInUse)}>
+            <span className="ap-shared" id={`ap-shared-${a.num}`} title={sharedLine(lan.sharedTo, lan.sharedInUse)} role="img" aria-label="Account sharing">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor"
+                strokeWidth="1.3" strokeLinecap="round" aria-hidden>
+                <circle cx="10.5" cy="3.2" r="1.7" />
+                <circle cx="3.5" cy="7" r="1.7" />
+                <circle cx="10.5" cy="10.8" r="1.7" />
+                <path d="M5.2 6.1 8.8 4.1M5.2 7.9l3.6 2" />
+              </svg>
+              <span className="vis-hidden">{sharedLine(lan.sharedTo, lan.sharedInUse)}</span>
+            </span>
+          </AccountHint>
         )}
         {/* A state, said in a word and not in a pill. It stands where
             `Switch` would, because a switch to a held-out account is
@@ -378,25 +386,19 @@ export default function AccountRow({
             {issue.tone === "warn" && <WarnGlyph />}
             <span className="ap-issue-text">{issue.text}</span>
           </button>
+          {issue.fix && onSignIn && (
+            <button type="button" className="ap-sign-in"
+              aria-label={`${issue.fix} as ${a.email ?? name}`} title={issue.hint}
+              onClick={() => onSignIn(a.email)}>Sign in</button>
+          )}
           {/* How old the last reading is. On an open row the freshness
               line under the bars says it, so it is said once. */}
           {!open && (
-            <span className="ap-issue-age" title="When claude-swap last read this account's usage">
+            <span className="ap-issue-age" title={ageTitle}>
               {age ?? "never collected"}
             </span>
           )}
         </div>
-      )}
-
-      {/* WHAT THE ORGANIZATION RECORDS, on every row of it, shut or open:
-          the moment it matters is before the switch. A word for what goes
-          out on the row, the sentence behind it for a pointer and for a
-          screen reader — the door's description points here. */}
-      {telemetry && (
-        <p className="ap-telemetry" id={`ap-telemetry-${a.num}`} data-tone={telemetry.tone} title={telemetry.detail}>
-          <span aria-hidden>{telemetry.text}</span>
-          <span className="vis-hidden">{telemetry.detail}</span>
-        </p>
       )}
 
       {/* SHUT: THE TWO NUMBERS AN ACCOUNT IS CHOSEN BY. No bars, no
@@ -422,7 +424,7 @@ export default function AccountRow({
               ))
             : <span className="ap-q-label">no usage recorded yet</span>}
           {a.stale && !issue && (
-            <span className="ap-q-age" data-never={age ? undefined : ""} title="When claude-swap last read this account's usage">
+            <span className="ap-q-age" data-never={age ? undefined : ""} title={ageTitle}>
               {age ?? "never collected"}
             </span>
           )}
@@ -447,7 +449,9 @@ export default function AccountRow({
                   // account with a problem is old because of it, so
                   // the age stays quiet and the problem takes the ink.
                   className={`ap-age${a.stale && !issue ? " ap-stale" : ""}`}
-                  title={"When claude-swap last read this account's usage, and when it plans to read it again. "
+                  title={a.sharedFrom
+                    ? `Read on ${a.sharedFrom}, a paired deck. One deck reads each account you share and the others use its numbers, so the account's usage requests are not spent once per machine.`
+                    : "When claude-swap last read this account's usage, and when it plans to read it again. "
                        + "It sets that interval itself — 3 minutes at the fastest, wider while an account is "
                        + "recovering from a rate limit — and every surface, including `cswap watch`, follows "
                        + "the same plan."}
