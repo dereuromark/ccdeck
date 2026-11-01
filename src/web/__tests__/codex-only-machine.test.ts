@@ -470,7 +470,7 @@ describe("which panels the UI draws for each machine", () => {
     expect(appSrc).toMatch(/<EdgeDock items=\{\[\.\.\.rails\.left, /);
     // Account capacity and Reset calendar open the accounts' report, so they
     // follow the accounts button off a Codex-only stripe and out of More.
-    expect(appSrc).toMatch(/leftStripe: providers\.claude \? \[named\(t\("board\.rail\.group\.accounts"\), \[accounts, \.\.\.capacity\]\), \[sessionList\]\] : \[\[sessionList\]\]/);
+    expect(appSrc).toMatch(/leftStripe: \(providers\.claude \|\| providers\.codex\) \? \[named\(t\("board\.rail\.group\.accounts"\), \[accounts, \.\.\.\(providers\.claude \? capacity : \[\]\)\]\), \[sessionList\]\] : \[\[sessionList\]\]/);
     expect(appSrc).toMatch(/capacity: providers\.claude \? capacity : \[\]/);
     // The connected trackers (#2178) are a group of their own after it, so
     // they cannot stand in for the accounts button either.

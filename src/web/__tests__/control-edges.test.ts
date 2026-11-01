@@ -964,7 +964,7 @@ describe("what counts as an edge, which BORDER_PROPS decides (#655)", () => {
     // Jira Move adds a select boundary and the full-row keyboard perimeter;
     // both are swept at the unchanged 3:1 floor, not exempted.
     // Codex profile actions join the account controls with a visible resting edge.
-    expect(EDGED_CONTROLS.length).toBeLessThan(165);
+    expect(EDGED_CONTROLS.length).toBeLessThan(166);
     // The shapes #378 and #655 each added, still answered: a ring-only rule and
     // a `-color`-longhand-only rule both read as edges.
     expect(paintsAnEdge("outline: 1px solid var(--line);")).toBe(true);

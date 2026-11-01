@@ -51,7 +51,8 @@ describe("the left stripe's two doors into Account capacity", () => {
 
   it("go with the accounts button on a machine without Claude Code", () => {
     const r = rails({ claude: false });
-    expect(r.leftStripe.map(ids)).toEqual([["session-list"]]);
+    // Codex profiles keep the accounts button; the capacity doors stay Claude's.
+    expect(r.leftStripe.map(ids)).toEqual([["accounts"], ["session-list"]]);
     expect(r.capacity).toEqual([]);
   });
 

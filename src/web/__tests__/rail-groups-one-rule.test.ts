@@ -86,6 +86,6 @@ describe("both stripes follow one rule", () => {
       openCapacity: noop, openSettings: noop, onFeedback: noop,
       toggles: { sessionList: ref(), usage: ref(), accounts: ref(), machine: ref() },
     });
-    expect(codexOnly.leftStripe.map(ids)).toEqual([["session-list"]]);
+    expect(codexOnly.leftStripe.map(ids)).toEqual([["accounts"], ["session-list"]]);
   });
 });

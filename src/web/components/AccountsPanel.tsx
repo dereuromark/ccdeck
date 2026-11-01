@@ -74,10 +74,9 @@ interface Props {
 }
 
 export default function AccountsPanel(props: Props) {
-  const t = useT();
   if (props.claudeEnabled === false) return (
-    <aside className={`accounts-panel${props.leaving ? " leaving" : ""}`} id="accounts-panel" aria-label={t("accounts.panel.label")}>
-      <div className="ap-header"><h2>Codex profiles</h2><button type="button" className="glyph-btn" aria-label={t("accounts.panel.closeLabel")} onClick={props.onClose}>×</button></div>
+    <aside className={`accounts-panel${props.leaving ? " leaving" : ""}`} id="accounts-panel" aria-label="Agent accounts">
+      <div className="ap-header"><h2>Codex profiles</h2><button type="button" className="glyph-btn" aria-label="Close accounts" onClick={props.onClose}>×</button></div>
       <div className="ap-scroll">{props.codexEnabled !== false && <CodexProfilesSection />}</div>
     </aside>
   );
